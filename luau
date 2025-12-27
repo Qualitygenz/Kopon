@@ -246,7 +246,7 @@ MainTab:Toggle({
 })
 
 -- Walk Speed Slider
-PlayerTab:Slider({
+MainTab:Slider({
     Title = "Speed Multiplier",
     Value = {Min = 1, Max = 5, Default = walkSpeedMultiplier},
     Step = 1,
