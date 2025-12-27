@@ -268,3 +268,134 @@ RunService.RenderStepped:Connect(function(delta)
         end
     end
 end)
+
+-- Antiaim Script
+_G.AntiLock = false
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local CharModule = require(ReplicatedStorage.Modules.Core.Char)
+
+-- Animation Anti-Aim
+local AntiAimAnimTrack = nil
+local ANIM_ID = "rbxassetid://104767795538635"
+
+local function playDanceAntiAim()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = char:WaitForChild("Humanoid")
+
+    if AntiAimAnimTrack then
+        AntiAimAnimTrack:Stop()
+        AntiAimAnimTrack:Destroy()
+        AntiAimAnimTrack = nil
+    end
+
+    local anim = Instance.new("Animation")
+    anim.AnimationId = ANIM_ID
+
+    AntiAimAnimTrack = humanoid:LoadAnimation(anim)
+    AntiAimAnimTrack.Looped = true
+    AntiAimAnimTrack:Play()
+    AntiAimAnimTrack:AdjustSpeed(99999999999999999999999999999999999)
+end
+
+local function stopDanceAntiAim()
+    if AntiAimAnimTrack then
+        AntiAimAnimTrack:Stop()
+        AntiAimAnimTrack:Destroy()
+        AntiAimAnimTrack = nil
+    end
+end
+
+-- Velocity Desync + CustomPhysicalProperties
+local function VelocityDesync()
+    local hrp = CharModule.get_hrp()
+    if not hrp then return end
+
+    local OldVec = hrp.Velocity
+    local Lin = hrp.AssemblyLinearVelocity
+    local Ang = hrp.AssemblyAngularVelocity
+
+    local RandomVec = Vector3.new(
+        math.random(-16000, 16000),
+        math.random(-16000, 16000),
+        math.random(-16000, 16000)
+    )
+
+    hrp.Velocity = RandomVec
+    hrp.AssemblyLinearVelocity = RandomVec
+    hrp.AssemblyAngularVelocity = RandomVec
+
+    RunService.RenderStepped:Wait()
+
+    hrp.Velocity = OldVec
+    hrp.AssemblyLinearVelocity = Lin
+    hrp.AssemblyAngularVelocity = Ang
+end
+
+local function SetPhysics()
+    local hrp = CharModule.get_hrp()
+    if hrp then
+        hrp.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0.001, 0.001)
+    end
+end
+
+-- Loop ทำงานถ้าเปิด AntiLock
+RunService.Heartbeat:Connect(function()
+    if _G.AntiLock then
+        VelocityDesync()
+        SetPhysics()
+    end
+end)
+
+-- UI Toggle
+MainTab:Toggle({
+    Title = "Anti Lock",
+    Flag = "antilock",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(Value)
+        _G.AntiLock = Value
+
+        if Value then
+            playDanceAntiAim()
+        else
+            stopDanceAntiAim()
+        end
+    end
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local CombatTab =
+    Window:Tab(
+    {
+        Title = "Combat",
+        Icon = "sword"
+    }
+)
+
