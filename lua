@@ -170,4 +170,101 @@ local DesyncButton = MainTab:Button({
     end,
 })
 
+-- Player Tab: High Jump
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
 
+local defaultJumpPower = 20
+local maxJumpPower = 100
+local highJumpPower = 60
+local walkSpeedMultiplier = 0.10
+local highJumpActive = false
+local speedActive = false
+
+local function setJumpPower(power)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.UseJumpPower = true
+        hum.JumpPower = math.clamp(power, 0, maxJumpPower)
+    end
+end
+
+local function setupCharacter(char)
+    local hum = char:WaitForChild("Humanoid")
+    hum.AutoJumpEnabled = false  
+
+    if highJumpActive then
+        hum.UseJumpPower = true
+        hum.JumpPower = highJumpPower
+    else
+        hum.JumpPower = defaultJumpPower
+    end
+end
+
+player.CharacterAdded:Connect(setupCharacter)
+
+if player.Character then
+    setupCharacter(player.Character)
+end
+
+-- High Jump Toggle
+MainTab:Toggle({
+    Title = "High Jump",
+    Default = false,
+    Callback = function(state)
+        highJumpActive = state
+        if state then
+            setJumpPower(highJumpPower)
+        else
+            setJumpPower(defaultJumpPower)
+        end
+    end
+})
+
+-- High Jump Slider
+MainTab:Slider({
+    Title = "High Jump Power",
+    Value = {Min = 20, Max = maxJumpPower, Default = highJumpPower},
+    Step = 1,
+    Callback = function(value)
+        highJumpPower = tonumber(value)
+        if highJumpActive then
+            setJumpPower(highJumpPower)
+        end
+    end
+})
+
+-- Walk Speed Toggle
+MainTab:Toggle({
+    Title = "Walk Speed",
+    Default = false,
+    Callback = function(state)
+        speedActive = state
+    end
+})
+
+-- Walk Speed Slider
+PlayerTab:Slider({
+    Title = "Speed Multiplier",
+    Value = {Min = 1, Max = 5, Default = walkSpeedMultiplier},
+    Step = 1,
+    Callback = function(value)
+        walkSpeedMultiplier = tonumber(value)
+    end
+})
+
+RunService.RenderStepped:Connect(function(delta)
+    if speedActive and player.Character then
+        local char = player.Character
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if hum and root then
+            local moveDir = hum.MoveDirection
+            if moveDir.Magnitude > 0 then
+                root.CFrame = root.CFrame + moveDir.Unit * walkSpeedMultiplier * delta * 1
+            end
+        end
+    end
+end)
