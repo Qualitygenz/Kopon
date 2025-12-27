@@ -598,114 +598,13 @@ end
                     if uid then
                         UseBloodBag(uid)
                     else
-                        warn("⚠ No bloodbag found.")
+                        warn(" No bloodbag found.")
                     end
                 end
             end
         end)
     end
 })
-
-MainTab:Divider()
-
-local EnabledSnapRunning = false
-local SnapThread = nil
-local YoffsetValue = 70
-
-func["EnabledSnap"] = function()
-    local basePosition = RootPart.Position
-    while EnabledSnapRunning do
-        task.wait()
-        if not EnabledSnapRunning then
-            break
-        end
-        local currentY = RootPart.Position.Y
-        local targetY = basePosition.Y - YoffsetValue
-        local deltaY = targetY - currentY
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, deltaY, 0)
-    end
-end
-
-MainTab:Divider()
-
-local EnabledSnapRunning = false
-local SnapThread = nil
-local YoffsetValue = 70
-
-func["EnabledSnap"] = function()
-    local basePosition = RootPart.Position
-    while EnabledSnapRunning do
-        task.wait()
-        if not EnabledSnapRunning then
-            break
-        end
-        local currentY = RootPart.Position.Y
-        local targetY = basePosition.Y - YoffsetValue
-        local deltaY = targetY - currentY
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, deltaY, 0)
-    end
-end
-
--- 🔘 Toggle & Keybind Sync System
-local function SetSnapState(value)
-    if EnabledSnapRunning == value then
-        return
-    end -- ไม่ต้องทำซ้ำ
-    EnabledSnapRunning = value
-    if value then
-        if not SnapThread then
-            SnapThread = task.spawn(func["EnabledSnap"])
-        end
-    else
-        SnapThread = nil
-    end
-
-    -- Sync UI Toggle ให้ตรงกับสถานะ
-    MainTab:Get("UndergroundToggle"):SetValue(value)
-end
-
--- 🧩 Toggle
-MainTab:Toggle(
-    {
-        Title = "Underground",
-        Icon = "check",
-        Type = "Checkbox",
-        Value = false,
-        Flag = "UndergroundToggle", -- ต้องมี flag เพื่อให้ sync ได้
-        Callback = function(value)
-            SetSnapState(value)
-        end
-    }
-)
-
--- 🎹 Keybind
-MainTab:Keybind(
-    {
-        Title = "Keybind",
-        Flag = "keybind",
-        Value = "G",
-        Callback = function()
-            SetSnapState(not EnabledSnapRunning)
-        end
-    }
-)
-
--- 📏 Slider Snap Height
-MainTab:Slider(
-    {
-        Title = "Snap Height",
-        Flag = "snap_height",
-        Step = 1,
-        Value = {
-            Min = 1,
-            Max = 100,
-            Default = 10
-        },
-        Callback = function(value)
-            YoffsetValue = value
-        end
-    }
-)
 
 
 
