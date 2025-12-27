@@ -353,7 +353,7 @@ end)
 
 -- UI Toggle
 MainTab:Toggle({
-    Title = "Anti Lock",
+    Title = "Anti Aim",
     Flag = "antilock",
     Type = "Checkbox",
     Value = false,
